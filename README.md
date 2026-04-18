@@ -4,7 +4,7 @@
 
 **基于线激光三角测量原理的桌面级 3D 扫描系统**
 
-通过步进电机驱动目标物旋转，结合 USB 摄像头与线激光，实时重建物体三维点云。
+通过步进电机驱动竖直线激光绕扫描轴旋转，目标物静止放置，结合 USB 摄像头与激光三角测量，实时重建物体三维点云。
 
 [![C++17](https://img.shields.io/badge/C%2B%2B-17-blue?logo=c%2B%2B)](https://en.cppreference.com/w/cpp/17)
 [![CMake](https://img.shields.io/badge/CMake-%E2%89%A53.15-064F8C?logo=cmake)](https://cmake.org/)
@@ -29,6 +29,7 @@
 - [⚙️ 配置文件说明](#️-配置文件说明)
 - [☁️ 点云查看](#️-点云查看)
 - [📡 串口协议简介](#-串口协议简介)
+- [📄 开源协议](#-开源协议)
 
 ---
 
@@ -58,7 +59,7 @@
 │       │                │                  │         │
 │  ┌────▼────────────────▼──────────────────▼──────┐  │
 │  │               main.cpp (扫描主循环)             │  │
-│  │  1. 步进电机旋转一步                            │  │
+│  │  1. 线激光臂旋转一步（目标物静止放置）           │  │
 │  │  2. 获取去畸变帧                               │  │
 │  │  3. LaserExtractor → 2D 亚像素中心点            │  │
 │  │  4. Reconstructor  → 3D 点云切片               │  │
@@ -93,8 +94,8 @@ $$
 |------|------------|
 | 📷 USB 摄像头 | 640×480，支持关闭自动曝光（曝光固定有助于激光提取） |
 | 🔴 线激光器 | 532 nm 绿色线激光，沿目标物体垂直投射 |
-| 🎛️ STM32 控制板 | 通过串口接收步进指令，控制转台旋转与激光开关 |
-| ⚙️ 步进电机 + 转台 | 默认步进角 0.1125°，扫描范围 ±60°（可在配置中调整） |
+| 🎛️ STM32 控制板 | 通过串口接收步进指令，控制激光臂旋转与激光开关 |
+| ⚙️ 步进电机 + 旋转臂 | 激光器安装于旋转臂上，默认步进角 0.1125°，扫描半角 60°（可在配置中调整） |
 
 ---
 
@@ -288,7 +289,7 @@ T_CB: !!opencv-matrix      # 基座 → 相机齐次变换（4×4）
   cols: 4
   data: [ ... ]
 
-pi_R: !!opencv-matrix      # 转子坐标系激光平面 [nx, ny, nz, d]
+LaserPlane_R: !!opencv-matrix  # 转子坐标系激光平面 [nx, ny, nz, d]
   rows: 1
   cols: 4
   data: [ ... ]
@@ -331,3 +332,33 @@ python pcd_viewer.py
 | `CMD_MOVE` | `0x05` | 多步移动 |
 | `CMD_LASER_ON` | `0x03` | 激光开 |
 | `CMD_LASER_OFF` | `0x04` | 激光关 |
+
+---
+
+## 📄 开源协议
+
+本项目基于 [MIT License](LICENSE) 开源，允许自由使用、修改与分发，保留原始版权声明即可。
+
+```
+MIT License
+
+Copyright (c) 2025 cloudy440
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
